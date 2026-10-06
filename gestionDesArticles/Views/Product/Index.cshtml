@@ -1,0 +1,41 @@
+@model IEnumerable<gestionDesArticles.Models.Product>
+
+@{
+    ViewData["Title"] = "Liste des articles";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>@Html.DisplayNameFor(model => model.Name)</th>
+            <th>@Html.DisplayNameFor(model => model.Price)</th>
+            <th>@Html.DisplayNameFor(model => model.QteStock)</th>
+            <th>Catégorie</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model)
+{
+    var photoPath = "~/images/" + (item.Image ?? "noimage.jpg");
+    <tr>
+        <td><img src="@photoPath" asp-append-version="true" height="50" width="50" /></td>
+        <td>@Html.DisplayFor(model => item.Name)</td>
+        <td>@Html.DisplayFor(model => item.Price)</td>
+        <td>@Html.DisplayFor(model => item.QteStock)</td>
+        <td>@item.Category?.CategoryName</td>
+        <td>
+            <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
+            <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
+            <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
+        </td>
+    </tr>
+}
+    </tbody>
+</table>
