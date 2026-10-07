@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using gestionDesArticles.Models;
 
-namespace gestionDesArticles.Models
+namespace gestionDesArticles.ViewModels
 {
     public class CreateViewModel
     {

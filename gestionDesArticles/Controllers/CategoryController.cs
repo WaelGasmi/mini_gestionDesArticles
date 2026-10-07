@@ -1,9 +1,11 @@
 ﻿using gestionDesArticles.Models;
 using gestionDesArticles.Models.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gestionDesArticles.Controllers
 {
+    [Authorize(Roles = "Admin,Manager")]
     public class CategoryController : Controller
     {
         readonly ICategorieRepository Categories;
@@ -14,6 +16,7 @@ namespace gestionDesArticles.Controllers
         }
 
         // GET: Category
+        [AllowAnonymous]
         public IActionResult Index() => View(Categories.GetAll());
 
         // GET: Category/Details/5

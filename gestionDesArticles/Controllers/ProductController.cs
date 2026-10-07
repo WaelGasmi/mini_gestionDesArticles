@@ -1,19 +1,23 @@
 ﻿using gestionDesArticles.Models;
 using gestionDesArticles.Models.Repositories;
+using gestionDesArticles.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace gestionDesArticles.Controllers
 {
+    [Authorize(Roles = "Admin,Manager")]
     public class ProductController : Controller
     {
         readonly IProductRepository Products;
         readonly ICategorieRepository Categories;
         readonly IWebHostEnvironment env;
 
-        public ProductController(IProductRepository products,
-                                 ICategorieRepository categories,
-                                 IWebHostEnvironment env)
+        public ProductController(
+            IProductRepository products,
+            ICategorieRepository categories,
+            IWebHostEnvironment env)
         {
             Products = products;
             Categories = categories;
@@ -21,16 +25,26 @@ namespace gestionDesArticles.Controllers
         }
 
         // GET: Product
-        public IActionResult Index() => View(Products.GetAll());
+        [AllowAnonymous]
+        public IActionResult Index()
+        {
+            return View(Products.GetAll());
+        }
 
         // GET: Product/Search?val=xxx
-        public IActionResult Search(string val) => View("Index", Products.FindByName(val));
+        public IActionResult Search(string val)
+        {
+            return View("Index", Products.FindByName(val));
+        }
 
         // GET: Product/Details/5
         public IActionResult Details(int id)
         {
             var product = Products.GetById(id);
-            return product == null ? NotFound() : View(product);
+
+            return product == null
+                ? NotFound()
+                : View(product);
         }
 
         // GET: Product/Create
@@ -46,7 +60,11 @@ namespace gestionDesArticles.Controllers
         public IActionResult Create(CreateViewModel model)
         {
             if (model.ImagePath == null)
-                ModelState.AddModelError("ImagePath", "L'image est obligatoire.");
+            {
+                ModelState.AddModelError(
+                    "ImagePath",
+                    "L'image est obligatoire.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -64,16 +82,22 @@ namespace gestionDesArticles.Controllers
             };
 
             Products.Add(product);
-            return RedirectToAction(nameof(Details), new { id = product.ProductId });
+
+            return RedirectToAction(
+                nameof(Details),
+                new { id = product.ProductId });
         }
 
         // GET: Product/Edit/5
         public IActionResult Edit(int id)
         {
             var product = Products.GetById(id);
-            if (product == null) return NotFound();
+
+            if (product == null)
+                return NotFound();
 
             CategoryList();
+
             var model = new EditViewModel
             {
                 ProductId = product.ProductId,
@@ -83,6 +107,7 @@ namespace gestionDesArticles.Controllers
                 CategoryId = product.CategoryId,
                 ExistingImagePath = product.Image
             };
+
             return View(model);
         }
 
@@ -92,7 +117,9 @@ namespace gestionDesArticles.Controllers
         public IActionResult Edit(EditViewModel model)
         {
             var product = Products.GetById(model.ProductId);
-            if (product == null) return NotFound();
+
+            if (product == null)
+                return NotFound();
 
             if (!ModelState.IsValid)
             {
@@ -112,6 +139,7 @@ namespace gestionDesArticles.Controllers
             }
 
             Products.Update(product);
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -119,7 +147,10 @@ namespace gestionDesArticles.Controllers
         public IActionResult Delete(int id)
         {
             var product = Products.GetById(id);
-            return product == null ? NotFound() : View(product);
+
+            return product == null
+                ? NotFound()
+                : View(product);
         }
 
         // POST: Product/Delete/5
@@ -128,31 +159,67 @@ namespace gestionDesArticles.Controllers
         public IActionResult Delete(int id, Product product)
         {
             var p = Products.GetById(id);
-            if (p != null) DeleteImage(p.Image);
+
+            if (p != null)
+            {
+                DeleteImage(p.Image);
+            }
+
             Products.Delete(id);
+
             return RedirectToAction(nameof(Index));
         }
 
-        void CategoryList()
+        // Populate category dropdown
+        private void CategoryList()
         {
-            ViewBag.CategoryId = new SelectList(Categories.GetAll(), "CategoryId", "CategoryName");
+            ViewBag.CategoryId = new SelectList(
+                Categories.GetAll(),
+                "CategoryId",
+                "CategoryName");
         }
 
-        string SaveImage(IFormFile file)
+        // Save uploaded image
+        private string SaveImage(IFormFile file)
         {
-            string folder = Path.Combine(env.WebRootPath, "images");
+            string folder = Path.Combine(
+                env.WebRootPath,
+                "images");
+
             Directory.CreateDirectory(folder);
-            string fileName = Guid.NewGuid() + "_" + file.FileName;
-            using (var stream = new FileStream(Path.Combine(folder, fileName), FileMode.Create))
+
+            string fileName =
+                Guid.NewGuid() + "_" + file.FileName;
+
+            string filePath =
+                Path.Combine(folder, fileName);
+
+            using (var stream = new FileStream(
+                filePath,
+                FileMode.Create))
+            {
                 file.CopyTo(stream);
+            }
+
             return fileName;
         }
 
-        void DeleteImage(string fileName)
+        // Delete uploaded image
+        private void DeleteImage(string fileName)
         {
-            if (string.IsNullOrWhiteSpace(fileName)) return;
-            string path = Path.Combine(env.WebRootPath, "images", fileName);
-            if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+            if (string.IsNullOrWhiteSpace(fileName))
+                return;
+
+            string path = Path.Combine(
+                env.WebRootPath,
+                "images",
+                fileName);
+
+            if (System.IO.File.Exists(path))
+            {
+                System.IO.File.Delete(path);
+            }
         }
     }
 }
+ 

@@ -1,4 +1,4 @@
-namespace gestionDesArticles.Models
+namespace gestionDesArticles.ViewModels
 {
     public class EditViewModel : CreateViewModel
     {
