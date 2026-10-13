@@ -15,6 +15,9 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
+                <button class="btn btn-outline-primary me-2" type="button">
+                    <img src="~/images/categorie.png" alt="Ouvrir la liste des catégories" id="toggleMenu" style="width:24px;height:24px;" />
+                </button>
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">gestionDesArticles</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +47,10 @@
                                     <a class="dropdown-item" asp-controller="Category" asp-action="Index">Catégories</a>
                                 </li>
                             </ul>
-                
+                 
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Panier" asp-action="Index">Mon Panier</a>
                         </li>
                         @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {
@@ -106,10 +112,23 @@ Login
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Menu latéral pour les catégories -->
+            <div class="col-md-2" id="sidebar" style="display: none;">
+                <p> </p>
+                <ul class="list-group">
+                    @await Html.PartialAsync("_CategoriesMenu", ViewData["Categories"])
+                </ul>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="col-md-9" id="mainContent">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
     </div>
 
     <footer class="border-top footer text-muted">

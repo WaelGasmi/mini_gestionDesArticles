@@ -26,20 +26,47 @@ namespace gestionDesArticles.Controllers
 
         // GET: Product
         [AllowAnonymous]
-        public IActionResult Index()
+        public IActionResult Index(int? categoryId, int page = 1)
         {
-            return View(Products.GetAll());
+            int pageSize = 4; // Nombre de produits par page
+
+            var categories = Categories.GetAll();
+
+            // Passer les catégories à la vue
+            ViewData["Categories"] = categories;
+
+            // Récupérer les produits en fonction de categoryId, s'il est spécifié
+            IQueryable<Product> productsQuery = Products.GetAllProducts();
+
+            if (categoryId.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.CategoryId == categoryId);
+            }
+
+            // Pagination
+            var totalProducts = productsQuery.Count();
+            var products = productsQuery.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+            ViewBag.CurrentPage = page;
+            ViewBag.CategoryId = categoryId; // Passer categoryId à la vue
+
+            return View(products);
         }
 
         // GET: Product/Search?val=xxx
+        [AllowAnonymous]
         public IActionResult Search(string val)
         {
+            ViewData["Categories"] = Categories.GetAll();
             return View("Index", Products.FindByName(val));
         }
 
         // GET: Product/Details/5
+        [AllowAnonymous]
         public IActionResult Details(int id)
         {
+            ViewData["Categories"] = Categories.GetAll();
             var product = Products.GetById(id);
 
             return product == null
@@ -50,6 +77,7 @@ namespace gestionDesArticles.Controllers
         // GET: Product/Create
         public IActionResult Create()
         {
+            ViewData["Categories"] = Categories.GetAll();
             CategoryList();
             return View(new CreateViewModel());
         }
@@ -91,6 +119,7 @@ namespace gestionDesArticles.Controllers
         // GET: Product/Edit/5
         public IActionResult Edit(int id)
         {
+            ViewData["Categories"] = Categories.GetAll();
             var product = Products.GetById(id);
 
             if (product == null)
@@ -146,6 +175,7 @@ namespace gestionDesArticles.Controllers
         // GET: Product/Delete/5
         public IActionResult Delete(int id)
         {
+            ViewData["Categories"] = Categories.GetAll();
             var product = Products.GetById(id);
 
             return product == null

@@ -70,5 +70,10 @@ namespace gestionDesArticles.Models.Repositories
                 .OrderBy(p => p.ProductId)
                 .Include(p => p.Category).ToList();
         }
+
+        public IQueryable<Product> GetAllProducts()
+        {
+            return context.Products.Include(p => p.Category);
+        }
     }
 }

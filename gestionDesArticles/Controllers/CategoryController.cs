@@ -17,17 +17,26 @@ namespace gestionDesArticles.Controllers
 
         // GET: Category
         [AllowAnonymous]
-        public IActionResult Index() => View(Categories.GetAll());
+        public IActionResult Index()
+        {
+            ViewData["Categories"] = Categories.GetAll();
+            return View(Categories.GetAll());
+        }
 
         // GET: Category/Details/5
         public IActionResult Details(int id)
         {
+            ViewData["Categories"] = Categories.GetAll();
             var category = Categories.GetById(id);
             return category == null ? NotFound() : View(category);
         }
 
         // GET: Category/Create
-        public IActionResult Create() => View();
+        public IActionResult Create()
+        {
+            ViewData["Categories"] = Categories.GetAll();
+            return View();
+        }
 
         // POST: Category/Create
         [HttpPost]
@@ -42,6 +51,7 @@ namespace gestionDesArticles.Controllers
         // GET: Category/Edit/5
         public IActionResult Edit(int id)
         {
+            ViewData["Categories"] = Categories.GetAll();
             var category = Categories.GetById(id);
             return category == null ? NotFound() : View(category);
         }
@@ -59,6 +69,7 @@ namespace gestionDesArticles.Controllers
         // GET: Category/Delete/5
         public IActionResult Delete(int id)
         {
+            ViewData["Categories"] = Categories.GetAll();
             var category = Categories.GetById(id);
             return category == null ? NotFound() : View(category);
         }
